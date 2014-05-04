@@ -3,7 +3,7 @@
 
 #include "Window.hpp"
 #include "Program.hpp"
-#include <glm/gtc/matrix_transform.hpp>
+#include "Camera.hpp"
 
 class Game
 {
@@ -20,9 +20,7 @@ private:
 
     Window window;
     Program program;
-
-    glm::mat4 projection;
-    float scale;
+    Camera camera;
 };
 
 #endif

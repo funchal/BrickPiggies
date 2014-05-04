@@ -18,6 +18,7 @@ OBJS = \
 	.Shader.o \
 	.Program.o \
 	.Texture.o \
+	.Camera.o \
 	lodepng/.lodepng.o
 
 .PHONY: check

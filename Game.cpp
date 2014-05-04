@@ -7,7 +7,6 @@ Texture* hazard;
 Game::Game()
 : window("Game", 1024, 800, false)
 {
-    scale = 1.0f;
     window_resized(1024, 800);
     program.attach(VertexShader("Resources/Vertex.glsl"));
     program.attach(FragmentShader("Resources/Fragment.glsl"));
@@ -102,7 +101,16 @@ void Game::loop()
     texcoord.set(2, GL_FLOAT, GL_FALSE, 5*sizeof(GLfloat), 3*sizeof(GLfloat));
     window.check_gl();
 
+    glm::vec3 camera_delta;
+    float orbitate_delta = 0;
+    float zoom_delta = 0;
+
+    Uint32 curr_time = SDL_GetTicks();
     while (true) {
+        Uint32 next_time = SDL_GetTicks();
+        Uint32 delta_time = next_time - curr_time + 1;
+        curr_time = next_time;
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -118,22 +126,53 @@ void Game::loop()
                 case SDL_QUIT:
                     return;
                 case SDL_KEYUP:
-                    if (event.key.keysym.sym == SDLK_RETURN &&
-                            event.key.keysym.mod & KMOD_ALT) {
-                        window.set_fullscreen(!window.is_fullscreen());
-                    } else if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        return;
+                    switch (event.key.keysym.sym) {
+                        case SDLK_RETURN:
+                            if (event.key.keysym.mod & KMOD_ALT) {
+                                window.set_fullscreen(!window.is_fullscreen());
+                            }
+                            break;
+                        case SDLK_ESCAPE:
+                            return;
+                        case SDLK_q:
+                            orbitate_delta += 65;
+                            break;
+                        case SDLK_e:
+                            orbitate_delta -= 65;
+                            break;
+                        case SDLK_a:
+                        case SDLK_LEFT:
+                            camera_delta += 10.f*camera.get_left();
+                            break;
+                        case SDLK_d:
+                        case SDLK_RIGHT:
+                            camera_delta -= 10.f*camera.get_left();
+                            break;
+                        case SDLK_w:
+                        case SDLK_UP:
+                            camera_delta += 10.f*camera.get_forward();
+                            break;
+                        case SDLK_s:
+                        case SDLK_DOWN:
+                            camera_delta -= 10.f*camera.get_forward();
+                            break;
                     }
                     break;
                 case SDL_MOUSEWHEEL:
-                    if (event.wheel.y > 0) {
-                        scale /= 1.05 * event.wheel.y;
-                    } else {
-                        scale *= -1.05 * event.wheel.y;
-                    }
+                    zoom_delta += 10*event.wheel.y;
                     break;
             }
         }
+
+        camera.move(camera_delta*(0.01f*delta_time));
+        camera.orbitate(orbitate_delta*(0.01f*delta_time));
+        camera.zoom(zoom_delta*(0.01f*delta_time));
+
+        camera_delta.x = 10*camera_delta.x/delta_time;
+        camera_delta.y = 10*camera_delta.y/delta_time;
+        camera_delta.z = 10*camera_delta.z/delta_time;
+        orbitate_delta = 10*orbitate_delta/delta_time;
+        zoom_delta = 10*zoom_delta/delta_time;
 
         render();
     }
@@ -155,14 +194,12 @@ void Game::render()
     Uniform tex = program.getUniform("tex");
     tex.set1i(0); //set to 0 because the texture is bound to GL_TEXTURE0 unit
 
-    glm::mat4 camera = glm::lookAt(glm::vec3(3*scale, 3*scale, 3*scale),
-                                   glm::vec3(0, 0, 0),
-                                   glm::vec3(0, 1, 0));
-
     Uniform cam = program.getUniform("camera");
-    cam.set_matrix4f(&camera[0][0]);
+    glm::mat4 cam_matrix = camera.get_view();
+    cam.set_matrix4f(&cam_matrix[0][0]);
 
     Uniform proj = program.getUniform("projection");
+    glm::mat4 projection = camera.get_projection();
     proj.set_matrix4f(&projection[0][0]);
 
     glDrawArrays(GL_TRIANGLES, 0, 6*2*3);
@@ -170,18 +207,16 @@ void Game::render()
 
     hazard->unbind();
     program.unbind();
+    window.check_gl();
 
     window.swap_buffers();
+    window.check_gl();
 }
 
 void Game::window_resized(int width, int height)
 {
     info("Resizing window %dx%d.", width, height);
-    float fovy = 45.0f;
-    float aspect = (float)width/height;
-    float near = 0.1f;
-    float far = 1024.0f;
-    projection = glm::perspective<float>(fovy, aspect, near, far);
+    camera.set_aspect_ratio((float)width / height);
     glViewport(0, 0, width, height);
     window.check_gl();
 }
