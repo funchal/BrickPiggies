@@ -1,6 +1,8 @@
 #include "Window.hpp"
 #include "Error.hpp"
+#include "Game.hpp"
 #include <GL/glew.h>
+#include <SDL2/SDL_ttf.h>
 
 Window::Window(const char* title, int width, int height, bool fullscr)
 : window(NULL), fullscreen(fullscr)
@@ -42,6 +44,9 @@ Window::Window(const char* title, int width, int height, bool fullscr)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    // TODO: check this
+    TTF_Init();
 
     context = SDL_GL_CreateContext(window);
     if (!context) {

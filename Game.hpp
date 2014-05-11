@@ -4,6 +4,8 @@
 #include "Window.hpp"
 #include "Program.hpp"
 #include "Camera.hpp"
+#include "World.hpp"
+#include "Texture.hpp"
 
 class Game
 {
@@ -14,13 +16,19 @@ public:
     void render();
     void window_resized(int width, int height);
 
-private:
-    Game(const Game&) = delete;
-    Game& operator=(const Game&) = delete;
-
     Window window;
     Program program;
     Camera camera;
+
+    World* world;
+    Texture* hazard;
+
+private:
+    Game(const Game&) = delete;
+    Game& operator=(const Game&) = delete;
 };
+
+extern Game* game;
+extern SDL_Renderer* renderer;
 
 #endif

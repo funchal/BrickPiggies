@@ -8,7 +8,7 @@ CPPFLAGS = -Wall -Wextra -Wshadow -Wmissing-declarations -MMD -MP -std=c++11 -Il
 CXXFLAGS = -g -fmessage-length=0
 
 LD = g++
-LDFLAGS = -rdynamic -lGL -lSDL2 -lGLEW -lGLU
+LDFLAGS = -rdynamic -lGL -lSDL2 -lGLEW -lGLU -lSDL2_ttf
 
 TARGET = BrickPiggies
 OBJS = \
@@ -19,6 +19,7 @@ OBJS = \
 	.Program.o \
 	.Texture.o \
 	.Camera.o \
+	.World.o \
 	lodepng/.lodepng.o
 
 .PHONY: check

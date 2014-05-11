@@ -8,8 +8,9 @@ Camera::Camera()
   aspect_ratio(4.0f/3.0f),
   near(0.1f), far(1000.0f),
   min_zoom(10.0f),
-  max_zoom(100.0f),
-  position(10.0f, 10.0f, 10.0f),
+  max_zoom(500.0f),
+  target(64,0,64),
+  position(0.0f, 64.0f, 0.0f),
   up(0.0f, 1.0f, 0.0f)
 {}
 

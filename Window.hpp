@@ -16,8 +16,7 @@ public:
 
     void swap_buffers();
 
-private:
-    friend class Context;
+//private:
     Window();
     Window(const Window&);
     Window& operator=(const Window&);
